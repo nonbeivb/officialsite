@@ -1,0 +1,1444 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>呑兵衛 | 社会人バレーボールチーム</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Noto+Sans+JP:wght@400;700;900&family=Noto+Serif+JP:wght@700;900&display=swap" rel="stylesheet">
+<style>
+/* ── PAGE LOADER ── */
+#loader {
+  position:fixed; inset:0; z-index:99999;
+  background:#0F0F0F;
+  display:flex; align-items:center; justify-content:center;
+  flex-direction:column; gap:0;
+  transition:opacity .8s ease, visibility .8s ease;
+  overflow:hidden;
+}
+#loader.hidden { opacity:0; visibility:hidden; pointer-events:none; }
+
+/* コート床ライン */
+.loader-court {
+  position:absolute; bottom:0; left:0; right:0; height:38%;
+  background:linear-gradient(180deg, #1a1200 0%, #0a0800 100%);
+  border-top:3px solid #F5C800;
+}
+.loader-court::before {
+  content:'';
+  position:absolute; top:0; left:50%; transform:translateX(-50%);
+  width:2px; height:100%; background:rgba(245,200,0,0.15);
+}
+
+/* ネット */
+.loader-net {
+  position:absolute;
+  bottom:38%; left:50%; transform:translateX(-50%);
+  width:3px; height:90px;
+  background:rgba(245,200,0,0.5);
+}
+.loader-net::before {
+  content:'';
+  position:absolute; top:0; left:50%; transform:translateX(-50%);
+  width:260px; height:1px;
+  background:rgba(245,200,0,0.3);
+  box-shadow:0 10px 0 rgba(245,200,0,0.15), 0 20px 0 rgba(245,200,0,0.1);
+}
+
+/* ── プレイヤー本体 ── */
+.loader-scene {
+  position:absolute; bottom:38%; left:22%;
+  width:80px; height:160px;
+  animation:playerRun 0.6s 0.2s cubic-bezier(.4,0,.2,1) forwards,
+             playerJump 0.55s 0.85s cubic-bezier(.22,1,.36,1) forwards;
+  transform-origin: bottom center;
+}
+
+/* 頭 */
+.p-head {
+  position:absolute; top:0; left:50%; transform:translateX(-50%);
+  width:26px; height:26px; border-radius:50%;
+  background:#F5C800;
+  border:2px solid #C9A600;
+}
+
+/* 体 */
+.p-body {
+  position:absolute; top:28px; left:50%; transform:translateX(-50%);
+  width:22px; height:36px;
+  background:#F5C800; border-radius:4px 4px 2px 2px;
+}
+
+/* 左腕 (スパイク腕) */
+.p-arm-l {
+  position:absolute; top:32px; left:calc(50% - 11px);
+  width:10px; height:28px;
+  background:#F5C800; border-radius:5px;
+  transform-origin: top center;
+  transform: rotate(-20deg);
+  animation: armSwing 0.5s 1.4s cubic-bezier(.22,1,.36,1) forwards;
+}
+/* 右腕 */
+.p-arm-r {
+  position:absolute; top:32px; left:calc(50% + 1px);
+  width:10px; height:26px;
+  background:#F5C800; border-radius:5px;
+  transform-origin: top center;
+  transform: rotate(20deg);
+  animation: armUp 0.4s 0.85s ease forwards;
+}
+
+/* 左脚 */
+.p-leg-l {
+  position:absolute; top:62px; left:calc(50% - 14px);
+  width:11px; height:32px;
+  background:#C9A600; border-radius:4px;
+  transform-origin: top center;
+  animation: legFold 0.4s 0.85s ease forwards,
+             legLand 0.3s 1.9s ease forwards;
+}
+/* 右脚 */
+.p-leg-r {
+  position:absolute; top:62px; left:calc(50% + 3px);
+  width:11px; height:32px;
+  background:#C9A600; border-radius:4px;
+  transform-origin: top center;
+  animation: legFoldR 0.4s 0.85s ease forwards,
+             legLand 0.3s 1.9s ease forwards;
+}
+
+/* ── ボール ── */
+.loader-ball {
+  position:absolute; bottom:calc(38% + 110px); left:28%;
+  width:28px; height:28px; border-radius:50%;
+  background:radial-gradient(circle at 35% 35%, #fff 0%, #F5C800 40%, #C9A600 100%);
+  border:2px solid #8a7000;
+  box-shadow: inset -4px -4px 8px rgba(0,0,0,0.3);
+  opacity:0;
+  animation:
+    ballAppear  0.3s 0.9s ease forwards,
+    ballFly     0.7s 1.5s cubic-bezier(.2,.8,.4,1) forwards;
+}
+/* ボールの線 */
+.loader-ball::before {
+  content:'';
+  position:absolute; top:50%; left:0; right:0; height:2px;
+  background:rgba(180,130,0,0.6); border-radius:1px;
+  transform:translateY(-50%);
+}
+.loader-ball::after {
+  content:'';
+  position:absolute; left:50%; top:0; bottom:0; width:2px;
+  background:rgba(180,130,0,0.6); border-radius:1px;
+  transform:translateX(-50%);
+}
+
+/* ── スパイク衝撃波 ── */
+.loader-impact {
+  position:absolute; bottom:calc(38% + 115px); left:24%;
+  width:0; height:0;
+  border-radius:50%;
+  background:rgba(245,200,0,0.25);
+  opacity:0;
+  animation: impact 0.4s 1.5s ease-out forwards;
+}
+
+/* ── ボールの軌跡 ── */
+.loader-trail {
+  position:absolute; bottom:calc(38% + 124px); left:30%;
+  width:0; height:2px;
+  background:linear-gradient(90deg, rgba(245,200,0,0.6), transparent);
+  border-radius:1px;
+  transform-origin: left center;
+  opacity:0;
+  animation: trail 0.7s 1.52s ease forwards;
+}
+
+/* ── テキスト ── */
+.loader-text {
+  position:absolute; bottom:14%; left:50%; transform:translateX(-50%);
+  text-align:center; white-space:nowrap;
+  opacity:0;
+  animation: lFade 0.5s 2s ease forwards;
+}
+.loader-title {
+  font-family:'Oswald','Noto Serif JP',serif;
+  font-size:clamp(2rem,6vw,3.5rem); letter-spacing:8px; color:#FEFEFE;
+  display:block;
+}
+.loader-title .y { color:#F5C800; }
+.loader-ja-txt {
+  font-family:'Noto Serif JP',serif;
+  font-size:.95rem; letter-spacing:10px; color:#555;
+  display:block; margin-top:6px;
+}
+.loader-bar-wrap {
+  position:absolute; bottom:8%; left:50%; transform:translateX(-50%);
+  width:160px; height:2px; background:#222;
+  opacity:0;
+  animation: lFade 0.3s 2s ease forwards;
+}
+.loader-bar {
+  height:100%; background:#F5C800; width:0;
+  animation: lBar 1s 2.1s cubic-bezier(.4,0,.2,1) forwards;
+}
+
+/* ── キーフレーム ── */
+
+/* 助走（左から中央へ） */
+@keyframes playerRun {
+  from { left:5%; opacity:0; }
+  to   { left:22%; opacity:1; }
+}
+/* ジャンプ → 空中 → 着地 */
+@keyframes playerJump {
+  0%   { bottom:38%; }
+  40%  { bottom:calc(38% + 120px); }
+  75%  { bottom:calc(38% + 100px); }
+  100% { bottom:38%; }
+}
+/* 右腕を上に上げる（ジャンプ時） */
+@keyframes armUp {
+  from { transform:rotate(20deg); }
+  to   { transform:rotate(-150deg); }
+}
+/* 左腕スイング（スパイク動作） */
+@keyframes armSwing {
+  0%   { transform:rotate(-20deg); }
+  50%  { transform:rotate(-160deg); }
+  100% { transform:rotate(-80deg); }
+}
+/* 脚を折りたたむ（ジャンプ中） */
+@keyframes legFold {
+  from { transform:rotate(0deg); }
+  to   { transform:rotate(-40deg); }
+}
+@keyframes legFoldR {
+  from { transform:rotate(0deg); }
+  to   { transform:rotate(30deg); }
+}
+@keyframes legLand {
+  from { transform:rotate(-40deg); }
+  to   { transform:rotate(0deg); }
+}
+/* ボール出現 */
+@keyframes ballAppear {
+  from { opacity:0; transform:scale(0.5); }
+  to   { opacity:1; transform:scale(1); }
+}
+/* ボールが飛んでいく（放物線） */
+@keyframes ballFly {
+  0%   { left:28%; bottom:calc(38% + 110px); opacity:1; transform:rotate(0deg); }
+  30%  { left:55%; bottom:calc(38% + 160px); opacity:1; transform:rotate(180deg); }
+  70%  { left:82%; bottom:calc(38% + 60px);  opacity:1; transform:rotate(400deg); }
+  100% { left:105%; bottom:calc(38% - 10px); opacity:0; transform:rotate(540deg); }
+}
+/* 衝撃波 */
+@keyframes impact {
+  0%   { width:0; height:0; opacity:0.8; margin-left:0; margin-bottom:0; }
+  100% { width:80px; height:80px; opacity:0; margin-left:-40px; margin-bottom:-40px; }
+}
+/* 軌跡 */
+@keyframes trail {
+  0%   { width:0; opacity:0.8; left:30%; }
+  100% { width:200px; opacity:0; left:30%; }
+}
+
+@keyframes lFade { from{opacity:0} to{opacity:1} }
+@keyframes lBar  { from{width:0} to{width:100%} }
+
+/* ── SCROLL REVEAL 強化 ── */
+.reveal       { opacity:0; transform:translateY(32px); transition:opacity .7s cubic-bezier(.22,1,.36,1), transform .7s cubic-bezier(.22,1,.36,1); }
+.reveal.from-left  { transform:translateX(-40px); }
+.reveal.from-right { transform:translateX(40px); }
+.reveal.visible    { opacity:1; transform:translate(0); }
+
+
+
+/* ── CARD ホバー強化 ── */
+.scard {
+  transition:transform .35s cubic-bezier(.22,1,.36,1),
+             box-shadow .35s cubic-bezier(.22,1,.36,1),
+             border-color .25s ease !important;
+}
+.scard:hover {
+  transform:translateY(-8px) !important;
+  box-shadow:0 20px 40px rgba(0,0,0,.35), 0 0 0 1px var(--yellow) !important;
+}
+.acard {
+  transition:transform .35s cubic-bezier(.22,1,.36,1),
+             box-shadow .35s ease !important;
+}
+.acard:hover { transform:translate(-5px,-5px) !important; box-shadow:8px 8px 0 var(--yellow) !important; }
+.team-card { transition:transform .4s cubic-bezier(.22,1,.36,1), border-color .25s ease, box-shadow .4s ease !important; }
+.team-card:hover { transform:translateY(-10px) !important; box-shadow:0 24px 48px rgba(0,0,0,.5) !important; }
+.r-item { transition:background .25s ease, padding-left .25s ease !important; }
+.r-item:hover { padding-left:32px !important; }
+
+/* ── BUTTON ホバー強化 ── */
+.btn-y { transition:background .25s ease, transform .3s cubic-bezier(.22,1,.36,1), box-shadow .3s ease !important; }
+.btn-y:hover { transform:translateY(-4px) !important; box-shadow:0 12px 32px rgba(245,200,0,.35) !important; }
+.btn-bk { transition:border-color .25s, color .25s, transform .3s cubic-bezier(.22,1,.36,1) !important; }
+.btn-bk:hover { transform:translateY(-4px) !important; }
+.form-submit { transition:background .25s, transform .3s cubic-bezier(.22,1,.36,1), box-shadow .3s !important; }
+.form-submit:hover { box-shadow:0 10px 28px rgba(245,200,0,.3) !important; }
+.team-join { transition:opacity .2s, transform .3s cubic-bezier(.22,1,.36,1) !important; }
+.team-join:hover { transform:translateY(-2px) !important; opacity:.85 !important; }
+
+/* ── カウントアップ数字 ── */
+.count-num { display:inline-block; }
+
+/* ── ナビ スライドイン ── */
+nav { transform:translateY(-100%); animation:navIn .6s 1.4s cubic-bezier(.22,1,.36,1) forwards; }
+@keyframes navIn { to { transform:translateY(0); } }
+
+/* ── section タイトル アンダーライン ── */
+.sec-h { position:relative; display:inline-block; }
+.sec-h::after {
+  content:''; position:absolute; left:0; bottom:-4px;
+  width:0; height:3px; background:var(--yellow);
+  transition:width .6s cubic-bezier(.22,1,.36,1);
+}
+.sec-h.line-active::after { width:100%; }
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+
+:root {
+  --yellow:   #F5C800;
+  --yellow-d: #C9A600;
+  --yellow-l: #FFF8C0;
+  --black:    #0F0F0F;
+  --ink:      #1A1A1A;
+  --gray:     #3A3830;
+  --mid:      #7A7060;
+  --cream:    #F9F5E7;
+  --white:    #FEFEFE;
+  --red:      #D93A2B;
+  --blue:     #1A5EA8;
+  --pink:     #C0396A;
+  --font-h:   'Oswald','Noto Serif JP',serif;
+  --font-b:   'Noto Sans JP',sans-serif;
+}
+
+body { font-family:var(--font-b); background:var(--cream); color:var(--ink); overflow-x:hidden; }
+.scard,.acard,.team-card,.r-item,.btn-y,.btn-bk,.form-submit,.team-join,.tab-btn,.res-tab { cursor:pointer; }
+
+/* noise */
+body::before {
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:9000;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+  opacity:0.3;
+}
+
+/* ── NAV ── */
+nav {
+  position:fixed; top:0; left:0; right:0; z-index:500;
+  display:flex; align-items:stretch;
+  background:var(--black);
+  border-bottom:4px solid var(--yellow);
+  transition:border-bottom-width .2s;
+}
+.nav-logo-block {
+  background:var(--yellow); display:flex; align-items:center;
+  padding:0 26px; text-decoration:none; flex-shrink:0; position:relative;
+}
+.nav-logo-block::after {
+  content:''; position:absolute; right:-20px; top:0; bottom:0; width:0;
+  border-style:solid; border-width:100px 0 0 20px;
+  border-color:transparent transparent transparent var(--yellow);
+}
+.nav-logo-text { font-family:var(--font-h); font-size:1.5rem; color:var(--black); letter-spacing:4px; line-height:1; }
+.nav-logo-sub  { font-size:.5rem; letter-spacing:2px; color:var(--gray); display:block; margin-top:3px; font-weight:700; }
+.nav-links { display:flex; align-items:center; list-style:none; padding:0 20px 0 36px; gap:4px; }
+.nav-links a { color:#AAA; text-decoration:none; font-size:.72rem; letter-spacing:2px; font-weight:700; padding:6px 12px; border:1px solid transparent; transition:color .2s,border-color .2s; text-transform:uppercase; }
+.nav-links a:hover { color:var(--yellow); border-color:rgba(245,200,0,.3); }
+.nav-right { margin-left:auto; display:flex; align-items:center; padding-right:20px; }
+.nav-ig {
+  display:flex; align-items:center; gap:8px;
+  background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045);
+  color:#fff; text-decoration:none; padding:8px 18px;
+  font-size:.72rem; font-weight:900; letter-spacing:1px; white-space:nowrap;
+  clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);
+  transition:opacity .2s;
+}
+.nav-ig:hover { opacity:.85; }
+
+/* ── HERO ── */
+#hero {
+  min-height:100vh; background:var(--black);
+  display:flex; flex-direction:column;
+  position:relative; overflow:hidden; padding-top:72px;
+}
+
+
+.hero-grid {
+  position:absolute; left:0; top:0; bottom:0; width:50%;
+  background-image:linear-gradient(rgba(245,200,0,.05) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(245,200,0,.05) 1px,transparent 1px);
+  background-size:55px 55px;
+}
+.hero-inner {
+  position:relative; z-index:2;
+  display:flex; align-items:center; flex:1;
+  padding:60px 6% 70px; gap:40px;
+}
+.hero-left { flex:1; min-width:0; }
+.hero-kicker {
+  display:inline-flex; align-items:center; gap:10px;
+  background:var(--yellow); color:var(--black);
+  font-size:.68rem; font-weight:900; letter-spacing:4px; padding:6px 16px;
+  margin-bottom:24px; animation:sIn .6s ease both;
+}
+.kicker-dot { width:8px; height:8px; background:var(--black); border-radius:50%; animation:blink 1.5s ease-in-out infinite; flex-shrink:0; }
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.15}}
+.hero-title {
+  font-family:var(--font-h); font-size:clamp(4.5rem,13vw,10rem);
+  line-height:.85; color:var(--white); letter-spacing:2px;
+  animation:sIn .6s .1s ease both;
+}
+.hero-title-ja {
+  display:block; font-family:'Noto Serif JP',serif; font-weight:900;
+  font-size:clamp(2.4rem,6vw,5rem); color:var(--yellow);
+  letter-spacing:12px; margin-top:8px;
+  animation:sIn .6s .2s ease both;
+}
+.hero-desc {
+  color:#888; font-size:.88rem; line-height:2;
+  margin:28px 0 40px; max-width:420px;
+  border-left:3px solid var(--yellow); padding-left:16px;
+  animation:sIn .6s .3s ease both;
+}
+.hero-btns { display:flex; gap:12px; flex-wrap:wrap; animation:sIn .6s .4s ease both; }
+.btn-y {
+  background:var(--yellow); color:var(--black);
+  padding:14px 36px; font-weight:900; font-size:.88rem; letter-spacing:2px;
+  text-decoration:none; display:inline-flex; align-items:center; gap:8px;
+  clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px));
+  transition:background .2s,transform .2s;
+}
+.btn-y:hover { background:var(--yellow-l); transform:translateY(-2px); }
+.btn-bk {
+  background:transparent; color:#CCC; padding:12px 34px;
+  font-weight:700; font-size:.85rem; letter-spacing:1px;
+  text-decoration:none; border:2px solid #444;
+  display:inline-flex; align-items:center; gap:8px;
+  transition:border-color .2s,color .2s;
+}
+.btn-bk:hover { border-color:var(--yellow); color:var(--yellow); }
+/* emblem */
+.hero-right { flex:0 0 340px; display:flex; align-items:center; justify-content:center; }
+.hero-emblem {
+  width:280px; height:280px; border-radius:50%;
+  background:var(--black); border:5px solid var(--ink);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  box-shadow:8px 8px 0 var(--yellow-d),16px 16px 0 rgba(0,0,0,.3);
+  animation:flt 6s ease-in-out infinite; position:relative;
+}
+@keyframes flt{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+.emblem-ring { position:absolute; inset:-16px; border:2px dashed rgba(245,200,0,.2); border-radius:50%; animation:spin 30s linear infinite; }
+@keyframes spin{to{transform:rotate(360deg)}}
+.emblem-yr   { font-family:var(--font-h); font-size:.85rem; letter-spacing:4px; color:var(--yellow); }
+.emblem-name { font-family:'Noto Serif JP',serif; font-size:2.4rem; font-weight:900; color:var(--white); line-height:1.1; }
+.emblem-sub  { font-size:.6rem; letter-spacing:5px; color:#555; margin-top:6px; font-weight:700; }
+
+/* tape */
+.hero-tape {
+  background:var(--yellow); padding:12px 6%; position:relative; z-index:2;
+  display:flex; align-items:center; gap:32px; overflow:hidden; white-space:nowrap;
+}
+.tape-item { font-family:var(--font-h); font-size:.75rem; letter-spacing:3px; color:var(--black); font-weight:700; display:flex; align-items:center; gap:14px; }
+.tape-sep  { color:var(--black); opacity:.35; }
+
+@keyframes sIn{from{opacity:0;transform:translateX(-22px)}to{opacity:1;transform:translateX(0)}}
+
+/* ── SECTION COMMON ── */
+.sec-wrap { max-width:1100px; margin:0 auto; }
+.sec-label { font-family:var(--font-h); font-size:.72rem; letter-spacing:6px; color:var(--mid); text-transform:uppercase; display:block; margin-bottom:12px; }
+.sec-h { font-family:var(--font-h); font-size:clamp(2.2rem,5vw,3.8rem); line-height:1; letter-spacing:2px; color:var(--black); }
+.sec-ja { font-family:'Noto Serif JP',serif; font-size:clamp(.95rem,2vw,1.3rem); color:var(--mid); font-weight:700; letter-spacing:4px; margin:6px 0 28px; }
+.ybar { width:46px; height:5px; background:var(--yellow); margin-bottom:32px; }
+
+/* ── ABOUT ── */
+#about { background:var(--cream); padding:100px 6%; }
+.about-grid { display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:start; }
+.about-text p { color:#555; line-height:2.1; font-size:.92rem; margin-bottom:18px; }
+.acards { display:grid; gap:14px; }
+.acard {
+  background:var(--white); border:2px solid var(--ink);
+  padding:20px 22px; display:flex; gap:16px; align-items:flex-start;
+  transition:transform .2s; position:relative;
+}
+.acard::after { content:''; position:absolute; bottom:-4px; right:-4px; width:100%; height:100%; background:var(--yellow); z-index:-1; transition:bottom .2s,right .2s; }
+.acard:hover { transform:translate(-3px,-3px); }
+.acard:hover::after { bottom:-7px; right:-7px; }
+.acard-ic { font-size:1.8rem; flex-shrink:0; }
+.acard-t  { font-size:.9rem; font-weight:900; margin-bottom:4px; }
+.acard-d  { font-size:.78rem; color:#666; line-height:1.75; }
+
+/* ── TEAMS 3部構成 ── */
+#teams { background:var(--black); padding:100px 6%; }
+#teams .sec-label { color:var(--yellow); }
+#teams .sec-h { color:var(--white); }
+#teams .sec-ja { color:#555; }
+
+.teams-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; }
+
+.team-card {
+  border:2px solid #2A2A2A; background:var(--ink);
+  display:flex; flex-direction:column;
+  overflow:hidden; transition:transform .25s,border-color .25s;
+  position:relative;
+}
+.team-card:hover { transform:translateY(-6px); }
+
+/* color accent per team */
+.team-card.mixed  { --tc:#F5C800; }
+.team-card.mens   { --tc:#1A5EA8; }
+.team-card.womens { --tc:#C0396A; }
+
+.team-card::before { content:''; display:block; height:5px; background:var(--tc); }
+.team-card:hover { border-color:var(--tc); }
+
+.team-card-header {
+  padding:28px 24px 20px;
+  border-bottom:1px solid #222;
+}
+.team-badge {
+  display:inline-flex; align-items:center; gap:7px;
+  padding:4px 14px; font-size:.68rem; font-weight:900; letter-spacing:2px;
+  background:rgba(255,255,255,.05); border:1px solid #2A2A2A;
+  color:var(--tc); margin-bottom:16px;
+}
+.team-name {
+  font-family:var(--font-h); font-size:1.8rem; color:var(--white);
+  line-height:1; letter-spacing:2px; margin-bottom:6px;
+}
+.team-name-ja {
+  font-family:'Noto Serif JP',serif; font-size:.95rem;
+  color:var(--tc); font-weight:700; letter-spacing:4px;
+}
+.team-desc {
+  padding:20px 24px; font-size:.8rem; color:#777;
+  line-height:2; flex:1;
+}
+.team-stats {
+  display:grid; grid-template-columns:repeat(3,1fr);
+  border-top:1px solid #222;
+}
+.tstat {
+  padding:16px 0; text-align:center; border-right:1px solid #222;
+}
+.tstat:last-child { border-right:none; }
+.tstat-num  { font-family:var(--font-h); font-size:1.5rem; color:var(--tc); line-height:1; }
+.tstat-unit { font-size:.7rem; color:#888; }
+.tstat-lbl  { font-size:.62rem; color:#555; letter-spacing:1px; margin-top:3px; text-transform:uppercase; }
+
+/* join CTA within teams */
+.team-join {
+  margin:0 24px 24px;
+  display:inline-block; padding:10px 0; width:calc(100% - 48px);
+  background:var(--tc); color:var(--black);
+  font-size:.75rem; font-weight:900; letter-spacing:2px; text-align:center;
+  text-decoration:none; transition:opacity .2s;
+  clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px));
+}
+.team-join:hover { opacity:.8; }
+
+/* ── SCHEDULE ── */
+#schedule { background:var(--cream); padding:100px 6%; }
+.sched-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:18px; }
+.scard {
+  background:var(--white); border:2px solid var(--ink);
+  padding:26px; position:relative; overflow:hidden;
+  transition:transform .2s,box-shadow .2s;
+}
+.scard::before { content:''; position:absolute; top:0; left:0; right:0; height:4px; }
+.scard:hover { transform:translateY(-4px); box-shadow:6px 6px 0 var(--yellow-d); }
+.scard.practice::before { background:var(--yellow); }
+.scard.game::before     { background:var(--red); }
+.scard.exp::before      { background:#4CAF50; }
+.sbadge {
+  display:inline-flex; align-items:center; gap:6px;
+  padding:3px 12px; font-size:.68rem; font-weight:900; letter-spacing:2px; margin-bottom:14px;
+}
+.scard.practice .sbadge { background:rgba(245,200,0,.12); color:var(--yellow-d); border:1px solid rgba(245,200,0,.3); }
+.scard.game     .sbadge { background:rgba(217,58,43,.1);  color:var(--red);      border:1px solid rgba(217,58,43,.3); }
+.scard.exp      .sbadge { background:rgba(76,175,80,.1);  color:#388E3C;         border:1px solid rgba(76,175,80,.3); }
+.sdate  { font-family:var(--font-h); font-size:.78rem; letter-spacing:3px; color:var(--mid); margin-bottom:8px; }
+.stitle { font-size:1rem; font-weight:900; margin-bottom:10px; }
+.sinfo  { font-size:.78rem; color:#777; line-height:2; }
+.sinfo span { display:block; }
+
+/* team filter tags */
+.scard-teams { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px; }
+.stag {
+  font-size:.62rem; font-weight:900; letter-spacing:1px; padding:2px 10px;
+}
+.stag.mixed  { background:rgba(245,200,0,.12); color:var(--yellow-d); border:1px solid rgba(245,200,0,.3); }
+.stag.mens   { background:rgba(26,94,168,.1);  color:#3B82F6;          border:1px solid rgba(26,94,168,.3); }
+.stag.womens { background:rgba(192,57,106,.1); color:var(--pink);      border:1px solid rgba(192,57,106,.3); }
+
+/* 体験可否ラベル */
+.scard-footer {
+  display:flex; align-items:center; justify-content:space-between;
+  margin-top:16px; padding-top:14px;
+  border-top:1px dashed #E0D9C8;
+}
+.trial-label {
+  display:inline-flex; align-items:center; gap:6px;
+  font-size:.72rem; font-weight:900; letter-spacing:1.5px; padding:5px 14px;
+}
+.trial-label.ok {
+  background:#E8F5E9; color:#2E7D32;
+  border:1.5px solid #A5D6A7;
+}
+.trial-label.ok::before { content:'✓'; font-size:.8rem; }
+.trial-label.ng {
+  background:#FBE9E7; color:#B71C1C;
+  border:1.5px solid #FFAB91;
+}
+.trial-label.ng::before { content:'✕'; font-size:.8rem; }
+.trial-note {
+  font-size:.68rem; color:var(--mid); line-height:1.6; text-align:right;
+}
+.scard.game .scard-footer { display:none; }
+
+/* ── RESULTS ── */
+#results { background:var(--black); padding:100px 6%; }
+#results .sec-label { color:var(--yellow); }
+#results .sec-h { color:var(--white); }
+#results .sec-ja { color:#555; }
+
+/* team filter tabs */
+.res-tabs { display:flex; gap:0; margin-bottom:0; border-bottom:2px solid #2A2A2A; max-width:860px; }
+.res-tab {
+  padding:10px 28px; font-size:.75rem; font-weight:900; letter-spacing:2px;
+  cursor:pointer; border:none; background:transparent; color:#555;
+  font-family:var(--font-b); transition:color .2s,background .2s;
+  text-transform:uppercase;
+}
+.res-tab.active { color:var(--black); background:var(--yellow); }
+.res-tab:hover:not(.active) { color:var(--yellow); }
+
+.res-list { max-width:860px; display:none; }
+.res-list.active { display:block; }
+.r-item {
+  display:grid; grid-template-columns:90px 1fr auto;
+  gap:20px; align-items:center;
+  padding:20px 22px;
+  border-bottom:1px solid #1E1E1E;
+  transition:background .2s;
+}
+.r-item:hover { background:#151515; }
+.r-date { font-size:.72rem; color:#555; font-weight:700; letter-spacing:1px; line-height:1.7; }
+.r-name   { font-size:.95rem; font-weight:900; color:var(--white); margin-bottom:4px; }
+.r-detail { font-size:.75rem; color:#555; }
+.r-badge  { font-size:.62rem; font-weight:900; letter-spacing:2px; padding:2px 10px; display:inline-block; margin-bottom:6px; }
+.r-badge.win  { background:var(--yellow); color:var(--black); }
+.r-badge.loss { background:var(--red); color:#fff; }
+.r-badge.draw { background:#333; color:#999; border:1px solid #444; }
+.r-score      { font-family:var(--font-h); font-size:1.8rem; letter-spacing:2px; text-align:right; line-height:1; }
+.r-score.win  { color:var(--yellow); }
+.r-score.loss { color:var(--red); }
+.r-score.draw { color:#555; }
+
+/* ── FORMS ── */
+#forms-section { background:var(--ink); padding:100px 6%; }
+#forms-section .sec-label { color:var(--yellow); }
+#forms-section .sec-h { color:var(--white); }
+#forms-section .sec-ja { color:#555; }
+
+.forms-tabs { display:flex; max-width:860px; margin:0 auto; border-bottom:3px solid var(--yellow); }
+.tab-btn {
+  padding:13px 0; flex:1; text-align:center;
+  font-size:.78rem; font-weight:900; letter-spacing:2px; text-transform:uppercase;
+  cursor:pointer; border:none; background:#141414; color:#555;
+  font-family:var(--font-b); transition:background .2s,color .2s;
+}
+.tab-btn.active { background:var(--yellow); color:var(--black); }
+.tab-btn:hover:not(.active) { color:var(--yellow); }
+
+.forms-panels { max-width:860px; margin:0 auto; }
+.form-panel { display:none; background:#0F0F0F; border:2px solid #222; border-top:none; padding:44px; }
+.form-panel.active { display:block; }
+.fp-title { font-size:1rem; font-weight:900; color:var(--white); margin-bottom:6px; }
+.fp-desc  { font-size:.8rem; color:#666; margin-bottom:28px; line-height:1.9; }
+.fp-sub {
+  font-size:.78rem; font-weight:700; letter-spacing:2px; color:#666; text-transform:uppercase;
+  border-left:3px solid var(--yellow); padding-left:12px;
+  margin:24px 0 16px;
+}
+.fp-sep { border:none; border-top:1px solid #222; margin:28px 0; }
+
+.fr2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.fr3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; }
+.fg { display:flex; flex-direction:column; gap:7px; margin-bottom:14px; }
+.fg label { font-size:.7rem; color:#666; letter-spacing:2px; font-weight:700; text-transform:uppercase; }
+.req { color:var(--yellow); margin-left:2px; }
+.fg input,.fg select,.fg textarea {
+  background:#080808; border:1px solid #252525; padding:11px 14px;
+  color:var(--white); font-size:.88rem; font-family:var(--font-b);
+  transition:border-color .2s; outline:none;
+}
+.fg input::placeholder,.fg textarea::placeholder { color:#383838; }
+.fg input:focus,.fg select:focus,.fg textarea:focus { border-color:var(--yellow); }
+.fg select option { background:#0F0F0F; }
+.fg textarea { resize:vertical; min-height:88px; }
+.form-submit {
+  width:100%; background:var(--yellow); color:var(--black);
+  border:none; padding:15px; font-size:.92rem; font-weight:900; letter-spacing:3px;
+  cursor:pointer; font-family:var(--font-b); text-transform:uppercase;
+  transition:background .2s,transform .2s; margin-top:6px;
+}
+.form-submit:hover { background:var(--yellow-l); transform:translateY(-2px); }
+.form-note { font-size:.72rem; color:#555; text-align:center; margin-top:14px; line-height:1.9; }
+.form-note strong { color:var(--yellow); }
+.form-success { display:none; text-align:center; padding:60px 20px; }
+.s-ico { font-size:3rem; display:block; margin-bottom:16px; animation:pop .5s ease; }
+@keyframes pop{0%{transform:scale(0)}70%{transform:scale(1.15)}100%{transform:scale(1)}}
+.form-success h3 { font-size:1.3rem; color:var(--yellow); margin-bottom:10px; font-weight:900; }
+.form-success p  { color:#666; font-size:.85rem; line-height:2; }
+
+/* ── INSTAGRAM ── */
+#instagram { background:var(--black); padding:100px 6%; }
+.ig-wrap { max-width:900px; margin:0 auto; display:grid; grid-template-columns:1fr 1fr; gap:60px; align-items:center; }
+.ig-left .sec-label { color:var(--yellow); }
+.ig-left .sec-h  { color:var(--white); font-size:clamp(2rem,4vw,3rem); }
+.ig-left .sec-ja { color:#555; }
+.ig-left p { color:#666; font-size:.88rem; line-height:2; margin:20px 0 30px; }
+.ig-handle-frame {
+  display:inline-flex; background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045);
+  padding:3px; margin-bottom:28px;
+}
+.ig-handle-inner {
+  background:var(--black); padding:10px 22px;
+  font-family:var(--font-h); font-size:1rem; letter-spacing:3px; color:var(--white);
+}
+.btn-ig {
+  display:inline-flex; align-items:center; gap:12px;
+  background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045);
+  color:#fff; padding:14px 40px; font-weight:900; font-size:.88rem; letter-spacing:2px;
+  text-decoration:none;
+  clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px));
+  transition:opacity .2s;
+}
+.btn-ig:hover { opacity:.85; }
+
+.btn-sports {
+  display:inline-flex; align-items:center; gap:12px;
+  background:var(--yellow);
+  color:var(--black); padding:14px 40px;
+  font-weight:900; font-size:.88rem; letter-spacing:2px;
+  text-decoration:none;
+  clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px));
+  transition:opacity .2s, transform .3s cubic-bezier(.22,1,.36,1);
+}
+.btn-sports:hover { opacity:.85; transform:translateY(-2px); }
+
+.ig-right { display:grid; grid-template-columns:1fr 1fr; gap:3px; }
+.ig-thumb { aspect-ratio:1; background:#161616; display:flex; align-items:center; justify-content:center; font-size:2.5rem; border:1px solid #1E1E1E; transition:background .2s; }
+.ig-thumb:hover { background:#1E1E1E; }
+
+/* ── BLOG ── */
+.blog-grid {
+  display:grid; gap:24px;
+}
+.blog-card {
+  background:var(--white);
+  border:2px solid var(--ink);
+  padding:28px 32px;
+  position:relative;
+  transition:transform .35s cubic-bezier(.22,1,.36,1), box-shadow .35s ease;
+}
+.blog-card::after {
+  content:''; position:absolute; bottom:-5px; right:-5px;
+  width:100%; height:100%; background:var(--yellow);
+  z-index:-1; transition:bottom .35s, right .35s;
+}
+.blog-card:hover {
+  transform:translate(-4px,-4px);
+}
+.blog-card:hover::after {
+  bottom:-8px; right:-8px;
+}
+.blog-date {
+  font-family:var(--font-h);
+  font-size:.75rem; letter-spacing:2px; color:var(--mid);
+  margin-bottom:12px;
+}
+.blog-title {
+  font-size:1.3rem; font-weight:900; line-height:1.4;
+  color:var(--black); margin-bottom:14px;
+}
+.blog-excerpt {
+  font-size:.88rem; color:#666; line-height:1.9;
+  margin-bottom:20px;
+}
+.blog-readmore {
+  display:inline-flex; align-items:center; gap:6px;
+  font-size:.8rem; font-weight:900; letter-spacing:1px;
+  color:var(--yellow-d); text-decoration:none;
+  transition:gap .2s;
+}
+.blog-readmore:hover { gap:10px; }
+
+.ig-thumb:nth-child(1) { background:#1C1800; }
+.ig-thumb:nth-child(2) { background:#0E1420; }
+.ig-thumb:nth-child(3) { background:#1A0E14; }
+
+/* ── FOOTER ── */
+footer {
+  background:var(--black); border-top:4px solid var(--yellow);
+  padding:40px 6%; display:flex; align-items:center; justify-content:space-between;
+  flex-wrap:wrap; gap:20px;
+}
+.footer-logo      { font-family:var(--font-h); font-size:1.6rem; letter-spacing:4px; color:var(--yellow); display:block; }
+.footer-logo-ja   { font-family:'Noto Serif JP',serif; font-size:.85rem; color:#444; letter-spacing:6px; display:block; margin-top:2px; }
+.footer-links     { display:flex; gap:22px; flex-wrap:wrap; }
+.footer-links a   { color:#444; font-size:.7rem; text-decoration:none; letter-spacing:2px; transition:color .2s; text-transform:uppercase; font-weight:700; }
+.footer-links a:hover { color:var(--yellow); }
+footer p { color:#2A2A2A; font-size:.68rem; letter-spacing:1px; width:100%; }
+
+/* ── REVEAL ── */
+.reveal { opacity:0; transform:translateY(26px); transition:opacity .65s ease,transform .65s ease; }
+.reveal.visible { opacity:1; transform:translateY(0); }
+.rd1{transition-delay:.1s} .rd2{transition-delay:.2s} .rd3{transition-delay:.3s} .rd4{transition-delay:.4s}
+
+/* ── RESPONSIVE ── */
+@media(max-width:1000px){
+  .teams-grid { grid-template-columns:1fr; gap:20px; }
+  .team-stats { grid-template-columns:repeat(3,1fr); }
+}
+@media(max-width:900px){
+  .nav-links { display:none; }
+  .about-grid { grid-template-columns:1fr; gap:50px; }
+  .ig-wrap { grid-template-columns:1fr; }
+  .ig-right { display:none; }
+  .fr2,.fr3 { grid-template-columns:1fr; }
+  .form-panel { padding:28px 20px; }
+  .r-item { grid-template-columns:1fr auto; }
+  .r-date { display:none; }
+  footer { flex-direction:column; text-align:center; }
+  .footer-links { justify-content:center; }
+  .hero-right { display:none; }
+
+}
+@media(max-width:600px){
+  .hero-title { font-size:3.8rem; }
+  .sched-grid { grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+
+<!-- PAGE LOADER: SPIKE ANIMATION -->
+<div id="loader">
+  <!-- コート床 -->
+  <div class="loader-court"></div>
+
+  <!-- ネット -->
+  <div class="loader-net"></div>
+
+  <!-- プレイヤー -->
+  <div class="loader-scene">
+    <div class="p-head"></div>
+    <div class="p-body"></div>
+    <div class="p-arm-r"></div>
+    <div class="p-arm-l"></div>
+    <div class="p-leg-l"></div>
+    <div class="p-leg-r"></div>
+  </div>
+
+  <!-- ボール -->
+  <div class="loader-ball"></div>
+
+  <!-- 衝撃波 -->
+  <div class="loader-impact"></div>
+
+  <!-- 軌跡 -->
+  <div class="loader-trail"></div>
+
+  <!-- テキスト -->
+  <div class="loader-text">
+    <span class="loader-title">NON<span class="y">BEI</span></span>
+    <span class="loader-ja-txt">呑兵衛</span>
+  </div>
+  <div class="loader-bar-wrap"><div class="loader-bar"></div></div>
+</div>
+
+<nav>
+  <a href="#hero" class="nav-logo-block">
+    <div>
+      <div class="nav-logo-text">呑兵衛</div>
+      <span class="nav-logo-sub">VOLLEYBALL</span>
+    </div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#teams">Teams</a></li>
+    <li><a href="#schedule">Schedule</a></li>
+    <li><a href="#results">Results</a>
+    <a href="#blog">Blog</a></li>
+    <li><a href="#blog">Blog</a></li>
+    <li><a href="#forms-section">Join / 練習試合</a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="https://www.instagram.com/nonbei2024/" target="_blank" rel="noopener" class="nav-ig">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+      @nonbei2024
+    </a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-grid"></div>
+  
+  
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div class="hero-kicker"><div class="kicker-dot"></div>混合 / 男子 / 女子 — 3チーム編成 — 2024年結成</div>
+      <h1 class="hero-title">NONBEI<span class="hero-title-ja">呑兵衛</span></h1>
+      <p class="hero-desc">3つのカテゴリで戦う社会人バレーボールチーム。<br>男女問わず、経験問わず、本気で楽しむ仲間を求めています。</p>
+      <div class="hero-btns">
+        <a href="#forms-section" class="btn-y">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13H13V19H11V13H5V11H11V5H13V11H19V13Z"/></svg>
+          参加申込 / 練習試合打診
+        </a>
+        <a href="#teams" class="btn-bk">チーム一覧を見る →</a>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="hero-emblem">
+        <div class="emblem-ring"></div>
+        <div class="emblem-yr">EST. 2024</div>
+        <div class="emblem-name">呑兵衛</div>
+        <div class="emblem-sub">VOLLEYBALL CLUB</div>
+      </div>
+    </div>
+  </div>
+  <div class="hero-tape" style="animation:none">
+    <div class="tape-item">🟡 混合チーム（男女） <span class="tape-sep">◆</span></div>
+    <div class="tape-item">🔵 男子チーム（6名） <span class="tape-sep">◆</span></div>
+    <div class="tape-item">🔴 女子チーム（6名） <span class="tape-sep">◆</span></div>
+    <div class="tape-item">毎週土日祝 定期練習 <span class="tape-sep">◆</span></div>
+    <div class="tape-item">初心者・ブランク歓迎 <span class="tape-sep">◆</span></div>
+    <div class="tape-item">練習試合 随時受付</div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="sec-wrap">
+    <div class="about-grid">
+      <div class="reveal from-left">
+        <span class="sec-label">About Us</span>
+        <h2 class="sec-h">WHAT IS<br>NONBEI?</h2>
+        <div class="sec-ja">呑兵衛とは</div>
+        <div class="ybar"></div>
+        <div class="about-text">
+          <p>「呑兵衛」は2024年に結成した社会人バレーボールクラブです。混合・男子・女子の3チーム体制で活動しており、それぞれが地域大会やリーグ戦に参加しています。</p>
+          <p>毎週土日祝のしっかりした練習体制で、初心者からブランク明けまで幅広く受け入れています。コートでは全力、コートの外では笑いの絶えない温かいクラブです。</p>
+          <p>他チームとの練習試合・交流戦も積極的に受け付けています。お気軽にご連絡ください。</p>
+        </div>
+      </div>
+      <div class="acards reveal from-right">
+        <div class="acard reveal rd1">
+          <div class="acard-ic">📅</div>
+          <div><div class="acard-t">毎週土日祝 定期練習</div><div class="acard-d">土日祝の13:00〜17:00で練習を実施しています。忙しい社会人でも参加しやすいスケジュールで運営しています。</div></div>
+        </div>
+        <div class="acard reveal rd2">
+          <div class="acard-ic">🏆</div>
+          <div><div class="acard-t">3チームで大会・リーグ参加</div><div class="acard-d">混合・男子・女子それぞれが地域大会・リーグ戦に出場。チームとして成長を続けています。</div></div>
+        </div>
+        <div class="acard reveal rd3">
+          <div class="acard-ic">🤝</div>
+          <div><div class="acard-t">練習試合・交流戦 随時受付</div><div class="acard-d">他チームからの練習試合・交流戦のお誘いを歓迎。フォームまたはDMでお気軽にどうぞ。</div></div>
+        </div>
+        <div class="acard reveal rd4">
+          <div class="acard-ic">🍺</div>
+          <div><div class="acard-t">練習後は打ち上げも</div><div class="acard-d">「呑兵衛」の名の通り、コートの外でも絆を深めるのがこのクラブの文化です。</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TEAMS 3部構成 -->
+<section id="teams">
+  <div class="sec-wrap" style="margin-bottom:56px;">
+    <span class="sec-label reveal">Our Teams</span>
+    <h2 class="sec-h reveal">3 TEAMS</h2>
+    <div class="sec-ja reveal">チーム編成</div>
+  </div>
+  <div class="sec-wrap">
+    <div class="teams-grid">
+
+      <!-- 混合 -->
+      <div class="team-card mixed reveal rd1">
+        <div class="team-card-header">
+          <div class="team-badge">🟡 MIXED</div>
+          <div class="team-name">NONBEI<br>MIXED</div>
+          <div class="team-name-ja">呑兵衛 混合</div>
+        </div>
+        <div class="team-desc">
+          男女混合でプレーするカテゴリ。バレーボールの楽しさをそのままに、男女が同じコートで戦います。経験・性別問わず参加できる、クラブの中心的な存在です。初心者の方はまずこちらから。
+        </div>
+        <div class="team-stats">
+          <div class="tstat"><div class="tstat-num">男<span class="tstat-unit">女</span></div><div class="tstat-lbl">Category</div></div>
+          <div class="tstat"><div class="tstat-num">土日<span class="tstat-unit">祝</span></div><div class="tstat-lbl">Practice</div></div>
+          <div class="tstat"><div class="tstat-num">全<span class="tstat-unit">力</span></div><div class="tstat-lbl">Level</div></div>
+        </div>
+        <a href="#forms-section" class="team-join" onclick="openJoinTab()">参加を申し込む →</a>
+      </div>
+
+      <!-- 男子 -->
+      <div class="team-card mens reveal rd2">
+        <div class="team-card-header">
+          <div class="team-badge">🔵 MEN'S</div>
+          <div class="team-name">NONBEI<br>MEN'S</div>
+          <div class="team-name-ja">呑兵衛 男子</div>
+        </div>
+        <div class="team-desc">
+          男子6名で構成される男子チーム。地域の男子リーグ・大会への出場を軸に活動しています。フィジカルを活かしたパワフルなバレーで勝ちを狙いにいく、熱いチームです。
+        </div>
+        <div class="team-stats">
+          <div class="tstat"><div class="tstat-num"><span data-target="24" data-suffix="">0</span><span class="tstat-unit">名</span></div><div class="tstat-lbl">Members</div></div>
+          <div class="tstat"><div class="tstat-num">土日<span class="tstat-unit">祝</span></div><div class="tstat-lbl">Practice</div></div>
+          <div class="tstat"><div class="tstat-num">競<span class="tstat-unit">技</span></div><div class="tstat-lbl">Level</div></div>
+        </div>
+        <a href="#forms-section" class="team-join" onclick="openJoinTab()">参加を申し込む →</a>
+      </div>
+
+      <!-- 女子 -->
+      <div class="team-card womens reveal rd3">
+        <div class="team-card-header">
+          <div class="team-badge">🔴 WOMEN'S</div>
+          <div class="team-name">NONBEI<br>WOMEN'S</div>
+          <div class="team-name-ja">呑兵衛 女子</div>
+        </div>
+        <div class="team-desc">
+          女子6名で構成される女子チーム。粘り強いディフェンスとテンポのいい攻撃が持ち味。地域の女子リーグで存在感を発揮しています。経験者・ブランク明けの方を積極募集中。
+        </div>
+        <div class="team-stats">
+          <div class="tstat"><div class="tstat-num"><span data-target="10" data-suffix="">0</span><span class="tstat-unit">名</span></div><div class="tstat-lbl">Members</div></div>
+          <div class="tstat"><div class="tstat-num">土日<span class="tstat-unit">祝</span></div><div class="tstat-lbl">Practice</div></div>
+          <div class="tstat"><div class="tstat-num">競<span class="tstat-unit">技</span></div><div class="tstat-lbl">Level</div></div>
+        </div>
+        <a href="#forms-section" class="team-join" onclick="openJoinTab()">参加を申し込む →</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- SCHEDULE -->
+<section id="schedule">
+  <div class="sec-wrap" style="margin-bottom:56px;">
+    <span class="sec-label reveal">Schedule</span>
+    <h2 class="sec-h reveal">ACTIVITY<br>SCHEDULE</h2>
+    <div class="sec-ja reveal">活動スケジュール</div>
+    <div class="ybar reveal"></div>
+  </div>
+  <div class="sec-wrap">
+    <div class="sched-grid">
+      <div class="scard game reveal">
+        <div class="scard-teams"><span class="stag womens">女子</span></div>
+        <div class="sbadge">🏆 大会</div>
+        <div class="sdate">2025年 3月 7日（金）</div>
+        <div class="stitle">IDEA女子6オープン</div>
+        <div class="sinfo"><span>🕘 09:00 〜 15:00</span><span>📍 桐ヶ丘体育館</span></div>
+      </div>
+      <div class="scard game reveal rd1">
+        <div class="scard-teams"><span class="stag mixed">混合</span></div>
+        <div class="sbadge">🤝 練習試合</div>
+        <div class="sdate">2025年 3月 15日（土）</div>
+        <div class="stitle">混合練習試合</div>
+        <div class="sinfo"><span>🕒 15:00 〜 20:00</span><span>📍 三山東小学校</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RESULTS -->
+<section id="results">
+  <div class="sec-wrap" style="margin-bottom:56px;">
+    <span class="sec-label reveal">Results</span>
+    <h2 class="sec-h reveal">MATCH<br>RESULTS</h2>
+    <div class="sec-ja reveal">試合・大会結果</div>
+  </div>
+  <div class="sec-wrap">
+    <div style="text-align:center; padding:80px 20px;">
+      <div style="font-size:4rem; margin-bottom:16px;">🏐</div>
+      <div style="font-family:var(--font-h); font-size:2.5rem; letter-spacing:4px; color:var(--yellow); margin-bottom:12px;">COMING SOON</div>
+      <p style="color:#666; font-size:0.95rem; line-height:2;">試合結果は随時更新予定です。<br>最新情報は Instagram <a href="https://www.instagram.com/nonbei2024/" target="_blank" style="color:var(--yellow); text-decoration:none; font-weight:700;">@nonbei2024</a> をチェック！</p>
+    </div>
+  </div>
+</section>
+
+<!-- FORMS -->
+<section id="forms-section">
+  <div class="sec-wrap" style="margin-bottom:50px;">
+    <span class="sec-label reveal">Contact</span>
+    <h2 class="sec-h reveal">JOIN &amp;<br>SCRIMMAGE</h2>
+    <div class="sec-ja reveal">参加申込 &amp; 練習試合打診</div>
+  </div>
+
+  <div class="forms-tabs">
+    <button class="tab-btn active" id="tab-join" onclick="switchForm('join')">🏐 練習参加の申込</button>
+    <button class="tab-btn" id="tab-scrim" onclick="switchForm('scrim')">🤝 練習試合の打診</button>
+  </div>
+  <div class="forms-panels">
+
+    <!-- JOIN -->
+    <div id="panel-join" class="form-panel active">
+      <div id="join-inner">
+        <div class="fp-title">練習参加申込フォーム</div>
+        <p class="fp-desc">初回体験は無料！動きやすい服装と室内シューズがあれば手ぶらでOK。送信後2〜3日以内にご連絡します。</p>
+        <form onsubmit="doSubmit(event,'join-inner','join-ok')">
+          <div class="fr2">
+            <div class="fg"><label>お名前<span class="req">*</span></label><input type="text" placeholder="山田 太郎" required></div>
+            <div class="fg"><label>年齢<span class="req">*</span></label><input type="number" placeholder="28" min="16" max="70" required></div>
+          </div>
+          <div class="fg"><label>メールアドレス<span class="req">*</span></label><input type="email" placeholder="example@email.com" required></div>
+          <div class="fg"><label>電話番号</label><input type="tel" placeholder="090-0000-0000"></div>
+          <div class="fr2">
+            <div class="fg">
+              <label>参加希望チーム<span class="req">*</span></label>
+              <select required>
+                <option value="" disabled selected>選択</option>
+                <option>混合チーム</option>
+                <option>男子チーム</option>
+                <option>女子チーム</option>
+                <option>まだ決めていない</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label>バレーボール経験<span class="req">*</span></label>
+              <select required>
+                <option value="" disabled selected>選択</option>
+                <option>未経験</option>
+                <option>1年未満</option>
+                <option>1〜3年</option>
+                <option>3〜5年</option>
+                <option>5年以上</option>
+              </select>
+            </div>
+          </div>
+          <div class="fr2">
+            <div class="fg">
+              <label>希望ポジション</label>
+              <select>
+                <option value="" disabled selected>選択</option>
+                <option>セッター（S）</option>
+                <option>アウトサイドヒッター（OH）</option>
+                <option>ミドルブロッカー（MB）</option>
+                <option>オポジット（OP）</option>
+                <option>リベロ（L）</option>
+                <option>未定・なんでも</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label>参加希望日<span class="req">*</span></label>
+              <select required>
+                <option value="" disabled selected>選択</option>
+                <option>火曜夜（19:00〜21:00）</option>
+                <option>木曜夜（19:00〜21:00）</option>
+                <option>土曜（10:00〜13:00）</option>
+                <option>月1体験会（第1土曜）</option>
+                <option>相談したい</option>
+              </select>
+            </div>
+          </div>
+          <div class="fg"><label>メッセージ・質問</label><textarea placeholder="初心者ですが大丈夫でしょうか？など、お気軽にどうぞ。"></textarea></div>
+          <button type="submit" class="form-submit">申し込む →</button>
+          <p class="form-note">お急ぎの場合は Instagram <strong>@nonbei2024</strong> へDMをどうぞ。</p>
+        </form>
+      </div>
+      <div id="join-ok" class="form-success">
+        <span class="s-ico">🎉</span>
+        <h3>申し込みを受け付けました！</h3>
+        <p>ありがとうございます！<br>2〜3日以内にご連絡いたします。<br>一緒にバレーを楽しみましょう！🏐</p>
+      </div>
+    </div>
+
+    <!-- SCRIMMAGE -->
+    <div id="panel-scrim" class="form-panel">
+      <div id="scrim-inner">
+        <div class="fp-title">練習試合・交流戦 打診フォーム</div>
+        <p class="fp-desc">他チームからの練習試合・交流戦のお誘いを大歓迎しています！内容確認後、3〜5日以内にご連絡いたします。</p>
+
+        <div class="fp-sub">チーム情報</div>
+        <div class="fr2">
+          <div class="fg"><label>チーム名<span class="req">*</span></label><input type="text" placeholder="○○バレーボールクラブ" required></div>
+          <div class="fg">
+            <label>カテゴリ<span class="req">*</span></label>
+            <select required>
+              <option value="" disabled selected>選択</option>
+              <option>社会人混合</option>
+              <option>社会人男性</option>
+              <option>社会人女性</option>
+              <option>大学・学生</option>
+              <option>実業団</option>
+              <option>その他</option>
+            </select>
+          </div>
+        </div>
+        <div class="fr3">
+          <div class="fg"><label>活動拠点<span class="req">*</span></label><input type="text" placeholder="東京都○○区" required></div>
+          <div class="fg">
+            <label>レベル感</label>
+            <select>
+              <option value="" disabled selected>選択</option>
+              <option>初心者・ファン層</option>
+              <option>中級（区大会レベル）</option>
+              <option>上級（都大会以上）</option>
+            </select>
+          </div>
+          <div class="fg"><label>登録人数（目安）</label><input type="text" placeholder="15名"></div>
+        </div>
+
+        <hr class="fp-sep">
+        <div class="fp-sub">ご担当者様</div>
+        <div class="fr2">
+          <div class="fg"><label>お名前<span class="req">*</span></label><input type="text" placeholder="鈴木 一郎" required></div>
+          <div class="fg"><label>役職・立場</label><input type="text" placeholder="主将・幹事 など"></div>
+        </div>
+        <div class="fr2">
+          <div class="fg"><label>メールアドレス<span class="req">*</span></label><input type="email" placeholder="example@email.com" required></div>
+          <div class="fg"><label>電話番号</label><input type="tel" placeholder="090-0000-0000"></div>
+        </div>
+
+        <hr class="fp-sep">
+        <div class="fp-sub">希望する試合内容</div>
+        <div class="fr2">
+          <div class="fg">
+            <label>対戦希望チーム<span class="req">*</span></label>
+            <select required>
+              <option value="" disabled selected>選択</option>
+              <option>混合チーム</option>
+              <option>男子チーム</option>
+              <option>女子チーム</option>
+              <option>どれでも（相談したい）</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label>試合形式</label>
+            <select>
+              <option value="" disabled selected>選択</option>
+              <option>練習試合（セット数応相談）</option>
+              <option>交流戦（半日〜1日）</option>
+              <option>合同練習</option>
+              <option>その他（備考に記載）</option>
+            </select>
+          </div>
+        </div>
+        <div class="fr2">
+          <div class="fg">
+            <label>会場手配</label>
+            <select>
+              <option value="" disabled selected>選択</option>
+              <option>当方で用意可能</option>
+              <option>貴チームにお願いしたい</option>
+              <option>折半・相談したい</option>
+              <option>未定</option>
+            </select>
+          </div>
+          <div class="fg"><label>希望エリア / 会場の条件</label><input type="text" placeholder="○○区内・駅近など"></div>
+        </div>
+        <div class="fr2">
+          <div class="fg"><label>希望時期（第1希望）</label><input type="text" placeholder="2025年○月ごろ / 第2土曜など"></div>
+          <div class="fg"><label>希望時期（第2希望）</label><input type="text" placeholder="未定・調整次第など"></div>
+        </div>
+        <div class="fg"><label>メッセージ・その他ご要望</label><textarea placeholder="打ち上げ込みで交流したい、コート費用について相談したいなど、お気軽にどうぞ。"></textarea></div>
+
+        <button type="button" class="form-submit" onclick="doSubmitBtn('scrim-inner','scrim-ok')">打診を送る →</button>
+        <p class="form-note">お急ぎの場合は Instagram <strong>@nonbei2024</strong> へDMいただくと早く対応できます。</p>
+      </div>
+      <div id="scrim-ok" class="form-success">
+        <span class="s-ico">🤝</span>
+        <h3>打診を受け付けました！</h3>
+        <p>ありがとうございます！<br>内容を確認のうえ、3〜5日以内にご連絡いたします。<br>熱い試合を一緒にしましょう！🏐</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- INSTAGRAM -->
+<section id="instagram">
+  <div class="ig-wrap">
+    <div class="ig-left reveal">
+      <span class="sec-label">Follow Us</span>
+      <h2 class="sec-h">FOLLOW<br>ON IG</h2>
+      <div class="sec-ja">Instagram</div>
+      <p>練習の様子・試合の熱戦・3チームのオフショットまで、呑兵衛の日常をInstagramで発信中！まずフォローして雰囲気を感じてみてください。</p>
+      <div class="ig-handle-frame"><div class="ig-handle-inner">@nonbei2024</div></div><br>
+      <div style="display:flex; gap:14px; flex-wrap:wrap;">
+        <a href="https://www.instagram.com/nonbei2024/" target="_blank" rel="noopener" class="btn-ig">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+          Instagram
+        </a>
+        <a href="https://www.net-menber.com/look/data/194343.html" target="_blank" rel="noopener" class="btn-sports">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+          スポーツやろうよ！
+        </a>
+      </div>
+    </div>
+    <div class="ig-right reveal rd2">
+      <div class="ig-thumb">🏐</div>
+      <div class="ig-thumb">💪</div>
+      <div class="ig-thumb">🏆</div>
+      <div class="ig-thumb">🍺</div>
+    </div>
+  </div>
+</section>
+
+
+<!-- BLOG -->
+<section id="blog" style="background:var(--cream); padding:100px 6%;">
+  <div class="sec-wrap" style="margin-bottom:56px;">
+    <span class="sec-label reveal">Blog</span>
+    <h2 class="sec-h reveal">TEAM<br>BLOG</h2>
+    <div class="sec-ja reveal">チームブログ</div>
+    <div class="ybar reveal"></div>
+  </div>
+  <div class="sec-wrap" style="max-width:900px;">
+    <div class="blog-grid">
+      
+      <!-- 記事1 -->
+      <article class="blog-card reveal">
+        <div class="blog-date">2025.02.20</div>
+        <h3 class="blog-title">HPを公開しました！</h3>
+        <p class="blog-excerpt">呑兵衛バレーボールチームの公式ホームページを公開しました！練習日程や試合結果、メンバー募集情報などを随時更新していきます。ぜひブックマークしてチェックしてください...</p>
+        <a href="#" class="blog-readmore">続きを読む →</a>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div>
+    <span class="footer-logo">呑兵衛 NONBEI</span>
+    <span class="footer-logo-ja">社会人バレーボールチーム</span>
+  </div>
+  <div class="footer-links">
+    <a href="#about">About</a>
+    <a href="#teams">Teams</a>
+    <a href="#schedule">Schedule</a>
+    <a href="#results">Results</a>
+    <a href="#blog">Blog</a>
+    <a href="#forms-section">Join Us</a>
+    <a href="https://www.instagram.com/nonbei2024/" target="_blank">Instagram</a>
+  </div>
+  <p>© 2024 呑兵衛バレーボールチーム &nbsp;|&nbsp; Instagram: @nonbei2024</p>
+</footer>
+
+<script>
+/* ── LOADER ── */
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.getElementById('loader').classList.add('hidden');
+    // ヒーロー要素をロード後にアニメ起動
+    document.querySelectorAll('.hero-anim').forEach((el,i) => {
+      setTimeout(() => el.style.animationPlayState = 'running', i * 80);
+    });
+  }, 3200);
+});
+
+/* ── SCROLL REVEAL ── */
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      // セクションタイトルのアンダーライン
+      const h = e.target.querySelector('.sec-h');
+      if (h) setTimeout(() => h.classList.add('line-active'), 200);
+    }
+  });
+}, { threshold: 0.12, rootMargin:'0px 0px -40px 0px' });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+// セクション自体のタイトルも監視
+document.querySelectorAll('.sec-h').forEach(el => {
+  const secObs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('line-active'); });
+  }, { threshold: 0.5 });
+  secObs.observe(el);
+});
+
+/* ── COUNT UP ── */
+function countUp(el, target, suffix, duration) {
+  let start = 0;
+  const step = target / (duration / 16);
+  const timer = setInterval(() => {
+    start = Math.min(start + step, target);
+    el.textContent = Math.floor(start) + suffix;
+    if (start >= target) clearInterval(timer);
+  }, 16);
+}
+const countObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting && !e.target.dataset.counted) {
+      e.target.dataset.counted = '1';
+      const target = parseInt(e.target.dataset.target);
+      const suffix = e.target.dataset.suffix || '';
+      countUp(e.target, target, suffix, 1200);
+    }
+  });
+}, { threshold: 0.5 });
+document.querySelectorAll('[data-target]').forEach(el => countObs.observe(el));
+
+/* ── NAV SHRINK ── */
+window.addEventListener('scroll', () => {
+  document.querySelector('nav').style.borderBottomWidth = window.scrollY > 60 ? '2px' : '4px';
+});
+
+// Results tab switch
+function switchRes(key, btn) {
+  document.querySelectorAll('.res-tab').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.res-list').forEach(l => l.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('res-' + key).classList.add('active');
+}
+
+// Form tab switch
+function switchForm(key) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.form-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + key).classList.add('active');
+  document.getElementById('panel-' + key).classList.add('active');
+  document.getElementById('forms-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// Open join tab from team cards
+function openJoinTab() {
+  setTimeout(() => switchForm('join'), 100);
+}
+
+// Form submit (with form tag)
+function doSubmit(e, innerId, okId) {
+  e.preventDefault();
+  document.getElementById(innerId).style.display = 'none';
+  document.getElementById(okId).style.display = 'block';
+}
+
+// Form submit (button only, scrimmage)
+function doSubmitBtn(innerId, okId) {
+  // minimal required check
+  const inner = document.getElementById(innerId);
+  const required = inner.querySelectorAll('[required]');
+  for (const el of required) {
+    if (!el.value.trim()) { el.focus(); el.style.borderColor = '#D93A2B'; setTimeout(() => el.style.borderColor = '', 1500); return; }
+  }
+  inner.style.display = 'none';
+  document.getElementById(okId).style.display = 'block';
+}
+</script>
+</body>
+</html>
