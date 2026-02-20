@@ -1098,17 +1098,17 @@ footer p { color:#2A2A2A; font-size:.68rem; letter-spacing:1px; width:100%; }
       <div id="join-inner">
         <div class="fp-title">練習参加申込フォーム</div>
         <p class="fp-desc">初回体験は無料！動きやすい服装と室内シューズがあれば手ぶらでOK。送信後2〜3日以内にご連絡します。</p>
-        <form onsubmit="doSubmit(event,'join-inner','join-ok')">
+        <form action="https://formspree.io/f/xbdaaapw" method="POST" onsubmit="return handleFormSubmit(event,'join-inner','join-ok')">
           <div class="fr2">
-            <div class="fg"><label>お名前<span class="req">*</span></label><input type="text" placeholder="山田 太郎" required></div>
-            <div class="fg"><label>年齢<span class="req">*</span></label><input type="number" placeholder="28" min="16" max="70" required></div>
+            <div class="fg"><label>お名前<span class="req">*</span></label><input type="text" name="名前" placeholder="山田 太郎" required></div>
+            <div class="fg"><label>年齢<span class="req">*</span></label><input type="number" name="年齢" placeholder="28" min="16" max="70" required></div>
           </div>
-          <div class="fg"><label>メールアドレス<span class="req">*</span></label><input type="email" placeholder="example@email.com" required></div>
-          <div class="fg"><label>電話番号</label><input type="tel" placeholder="090-0000-0000"></div>
+          <div class="fg"><label>メールアドレス<span class="req">*</span></label><input type="email" name="メールアドレス" placeholder="example@email.com" required></div>
+          <div class="fg"><label>電話番号</label><input type="tel" name="電話番号" placeholder="090-0000-0000"></div>
           <div class="fr2">
             <div class="fg">
               <label>参加希望チーム<span class="req">*</span></label>
-              <select required>
+              <select name="参加希望チーム" required>
                 <option value="" disabled selected>選択</option>
                 <option>混合チーム</option>
                 <option>男子チーム</option>
@@ -1153,7 +1153,7 @@ footer p { color:#2A2A2A; font-size:.68rem; letter-spacing:1px; width:100%; }
               </select>
             </div>
           </div>
-          <div class="fg"><label>メッセージ・質問</label><textarea placeholder="初心者ですが大丈夫でしょうか？など、お気軽にどうぞ。"></textarea></div>
+          <div class="fg"><label>メッセージ・質問</label><textarea name="メッセージ" placeholder="初心者ですが大丈夫でしょうか？など、お気軽にどうぞ。"></textarea></div>
           <button type="submit" class="form-submit">申し込む →</button>
           <p class="form-note">お急ぎの場合は Instagram <strong>@nonbei2024</strong> へDMをどうぞ。</p>
         </form>
@@ -1171,12 +1171,13 @@ footer p { color:#2A2A2A; font-size:.68rem; letter-spacing:1px; width:100%; }
         <div class="fp-title">練習試合・交流戦 打診フォーム</div>
         <p class="fp-desc">他チームからの練習試合・交流戦のお誘いを大歓迎しています！内容確認後、3〜5日以内にご連絡いたします。</p>
 
+        <form action="https://formspree.io/f/mnjbbbor" method="POST" onsubmit="return handleFormSubmit(event,'scrim-inner','scrim-ok')">
         <div class="fp-sub">チーム情報</div>
         <div class="fr2">
-          <div class="fg"><label>チーム名<span class="req">*</span></label><input type="text" placeholder="○○バレーボールクラブ" required></div>
+          <div class="fg"><label>チーム名<span class="req">*</span></label><input type="text" name="チーム名" placeholder="○○バレーボールクラブ" required></div>
           <div class="fg">
             <label>カテゴリ<span class="req">*</span></label>
-            <select required>
+            <select name="カテゴリ" required>
               <option value="" disabled selected>選択</option>
               <option>社会人混合</option>
               <option>社会人男性</option>
@@ -1188,28 +1189,28 @@ footer p { color:#2A2A2A; font-size:.68rem; letter-spacing:1px; width:100%; }
           </div>
         </div>
         <div class="fr3">
-          <div class="fg"><label>活動拠点<span class="req">*</span></label><input type="text" placeholder="東京都○○区" required></div>
+          <div class="fg"><label>活動拠点<span class="req">*</span></label><input type="text" name="活動拠点" placeholder="東京都○○区" required></div>
           <div class="fg">
             <label>レベル感</label>
-            <select>
+            <select name="レベル感">
               <option value="" disabled selected>選択</option>
               <option>初心者・ファン層</option>
               <option>中級（区大会レベル）</option>
               <option>上級（都大会以上）</option>
             </select>
           </div>
-          <div class="fg"><label>登録人数（目安）</label><input type="text" placeholder="15名"></div>
+          <div class="fg"><label>登録人数（目安）</label><input type="text" name="登録人数" placeholder="15名"></div>
         </div>
 
         <hr class="fp-sep">
         <div class="fp-sub">ご担当者様</div>
         <div class="fr2">
-          <div class="fg"><label>お名前<span class="req">*</span></label><input type="text" placeholder="鈴木 一郎" required></div>
-          <div class="fg"><label>役職・立場</label><input type="text" placeholder="主将・幹事 など"></div>
+          <div class="fg"><label>お名前<span class="req">*</span></label><input type="text" name="担当者名" placeholder="鈴木 一郎" required></div>
+          <div class="fg"><label>役職・立場</label><input type="text" name="役職" placeholder="主将・幹事 など"></div>
         </div>
         <div class="fr2">
-          <div class="fg"><label>メールアドレス<span class="req">*</span></label><input type="email" placeholder="example@email.com" required></div>
-          <div class="fg"><label>電話番号</label><input type="tel" placeholder="090-0000-0000"></div>
+          <div class="fg"><label>メールアドレス<span class="req">*</span></label><input type="email" name="メールアドレス" placeholder="example@email.com" required></div>
+          <div class="fg"><label>電話番号</label><input type="tel" name="担当者電話番号" placeholder="090-0000-0000"></div>
         </div>
 
         <hr class="fp-sep">
@@ -1217,7 +1218,7 @@ footer p { color:#2A2A2A; font-size:.68rem; letter-spacing:1px; width:100%; }
         <div class="fr2">
           <div class="fg">
             <label>対戦希望チーム<span class="req">*</span></label>
-            <select required>
+            <select name="対戦希望チーム" required>
               <option value="" disabled selected>選択</option>
               <option>混合チーム</option>
               <option>男子チーム</option>
@@ -1227,7 +1228,7 @@ footer p { color:#2A2A2A; font-size:.68rem; letter-spacing:1px; width:100%; }
           </div>
           <div class="fg">
             <label>試合形式</label>
-            <select>
+            <select name="試合形式">
               <option value="" disabled selected>選択</option>
               <option>練習試合（セット数応相談）</option>
               <option>交流戦（半日〜1日）</option>
@@ -1239,7 +1240,7 @@ footer p { color:#2A2A2A; font-size:.68rem; letter-spacing:1px; width:100%; }
         <div class="fr2">
           <div class="fg">
             <label>会場手配</label>
-            <select>
+            <select name="会場手配">
               <option value="" disabled selected>選択</option>
               <option>当方で用意可能</option>
               <option>貴チームにお願いしたい</option>
@@ -1247,16 +1248,17 @@ footer p { color:#2A2A2A; font-size:.68rem; letter-spacing:1px; width:100%; }
               <option>未定</option>
             </select>
           </div>
-          <div class="fg"><label>希望エリア / 会場の条件</label><input type="text" placeholder="○○区内・駅近など"></div>
+          <div class="fg"><label>希望エリア / 会場の条件</label><input type="text" name="希望エリア" placeholder="○○区内・駅近など"></div>
         </div>
         <div class="fr2">
-          <div class="fg"><label>希望時期（第1希望）</label><input type="text" placeholder="2025年○月ごろ / 第2土曜など"></div>
-          <div class="fg"><label>希望時期（第2希望）</label><input type="text" placeholder="未定・調整次第など"></div>
+          <div class="fg"><label>希望時期（第1希望）</label><input type="text" name="希望時期1" placeholder="2025年○月ごろ / 第2土曜など"></div>
+          <div class="fg"><label>希望時期（第2希望）</label><input type="text" name="希望時期2" placeholder="未定・調整次第など"></div>
         </div>
-        <div class="fg"><label>メッセージ・その他ご要望</label><textarea placeholder="打ち上げ込みで交流したい、コート費用について相談したいなど、お気軽にどうぞ。"></textarea></div>
+        <div class="fg"><label>メッセージ・その他ご要望</label><textarea name="その他メッセージ" placeholder="打ち上げ込みで交流したい、コート費用について相談したいなど、お気軽にどうぞ。"></textarea></div>
 
-        <button type="button" class="form-submit" onclick="doSubmitBtn('scrim-inner','scrim-ok')">打診を送る →</button>
+        <button type="submit" class="form-submit">打診を送る →</button>
         <p class="form-note">お急ぎの場合は Instagram <strong>@nonbei2024</strong> へDMいただくと早く対応できます。</p>
+        </form>
       </div>
       <div id="scrim-ok" class="form-success">
         <span class="s-ico">🤝</span>
@@ -1421,23 +1423,37 @@ function openJoinTab() {
   setTimeout(() => switchForm('join'), 100);
 }
 
-// Form submit (with form tag)
-function doSubmit(e, innerId, okId) {
-  e.preventDefault();
-  document.getElementById(innerId).style.display = 'none';
-  document.getElementById(okId).style.display = 'block';
-}
-
-// Form submit (button only, scrimmage)
-function doSubmitBtn(innerId, okId) {
-  // minimal required check
+// Form submit with Formspree
+function handleFormSubmit(e, innerId, okId) {
+  const form = e.target;
   const inner = document.getElementById(innerId);
-  const required = inner.querySelectorAll('[required]');
-  for (const el of required) {
-    if (!el.value.trim()) { el.focus(); el.style.borderColor = '#D93A2B'; setTimeout(() => el.style.borderColor = '', 1500); return; }
+  const success = document.getElementById(okId);
+  
+  // フォームバリデーション
+  if (!form.checkValidity()) {
+    return true; // ブラウザのデフォルトバリデーションを使う
   }
-  inner.style.display = 'none';
-  document.getElementById(okId).style.display = 'block';
+  
+  e.preventDefault();
+  
+  // Formspreeに送信
+  fetch(form.action, {
+    method: 'POST',
+    body: new FormData(form),
+    headers: { 'Accept': 'application/json' }
+  }).then(response => {
+    if (response.ok) {
+      inner.style.display = 'none';
+      success.style.display = 'block';
+      form.reset();
+    } else {
+      alert('送信に失敗しました。もう一度お試しください。');
+    }
+  }).catch(error => {
+    alert('送信に失敗しました。もう一度お試しください。');
+  });
+  
+  return false;
 }
 </script>
 </body>
