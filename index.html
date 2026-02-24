@@ -1102,6 +1102,8 @@ footer p { color:#2A2A2A; font-size:.68rem; letter-spacing:1px; width:100%; }
         <div class="fp-title">練習参加申込フォーム</div>
         <p class="fp-desc">初回体験は無料！動きやすい服装と室内シューズがあれば手ぶらでOK。送信後2〜3日以内にご連絡します。</p>
         <form action="https://formspree.io/f/xbdaaapw" method="POST" onsubmit="return handleFormSubmit(event,'join-inner','join-ok')">
+          <input type="hidden" name="_url" value="https://nonbeivb.github.io/officialsite/">
+          <input type="hidden" name="_subject" value="【呑兵衛】新規参加申込">
           <div class="fr2">
             <div class="fg"><label>お名前<span class="req">*</span></label><input type="text" name="名前" placeholder="山田 太郎" required></div>
             <div class="fg"><label>年齢<span class="req">*</span></label><input type="number" name="年齢" placeholder="28" min="16" max="70" required></div>
@@ -1180,6 +1182,8 @@ footer p { color:#2A2A2A; font-size:.68rem; letter-spacing:1px; width:100%; }
         <p class="fp-desc">他チームからの練習試合・交流戦のお誘いを大歓迎しています！内容確認後、3〜5日以内にご連絡いたします。</p>
 
         <form action="https://formspree.io/f/mnjbbbor" method="POST" onsubmit="return handleFormSubmit(event,'scrim-inner','scrim-ok')">
+        <input type="hidden" name="_url" value="https://nonbeivb.github.io/officialsite/">
+        <input type="hidden" name="_subject" value="【呑兵衛】練習試合打診">
         <div class="fp-sub">チーム情報</div>
         <div class="fr2">
           <div class="fg"><label>チーム名<span class="req">*</span></label><input type="text" name="チーム名" placeholder="○○バレーボールクラブ" required></div>
@@ -1368,7 +1372,7 @@ footer p { color:#2A2A2A; font-size:.68rem; letter-spacing:1px; width:100%; }
       <h3 style="color:var(--yellow); font-size:1.1rem; margin:30px 0 16px; font-weight:900;">お問い合わせ</h3>
       <p style="margin-bottom:24px;">
         個人情報の取扱いに関するご質問やご相談は、以下までご連絡ください。<br>
-        📧 Email: <a href="mailto:nonbei.vb@gmail.com" style="color:var(--yellow); text-decoration:none;">nonbei.vb@gmail.com</a><br>
+        📧 Email: <a href="/cdn-cgi/l/email-protection#96f8f9f8f4f3ffb8e0f4d6f1fbf7fffab8f5f9fb" style="color:var(--yellow); text-decoration:none;"><span class="__cf_email__" data-cfemail="0a646564686f63247c684a6d676b636624696567">[email&#160;protected]</span></a><br>
         📱 Instagram: <a href="https://www.instagram.com/nonbei2024/" target="_blank" style="color:var(--yellow); text-decoration:none;">@nonbei2024</a>
       </p>
 
@@ -1399,7 +1403,7 @@ footer p { color:#2A2A2A; font-size:.68rem; letter-spacing:1px; width:100%; }
   <p>© 2024 呑兵衛バレーボールチーム &nbsp;|&nbsp; Instagram: @nonbei2024</p>
 </footer>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 /* ── LOADER ── */
 window.addEventListener('load', () => {
   setTimeout(() => {
@@ -1512,15 +1516,4 @@ function handleFormSubmit(e, innerId, okId) {
     form.reset();
   })
   .catch(error => {
-    // エラー時もとりあえず成功画面を表示（Formspreeには届いている可能性が高い）
-    console.error('Error:', error);
-    inner.style.display = 'none';
-    success.style.display = 'block';
-    form.reset();
-  });
-  
-  return false;
-}
-</script>
-</body>
-</html>
+    // エラー時もとりあえず成功画
