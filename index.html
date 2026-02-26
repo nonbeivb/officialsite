@@ -7,44 +7,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Noto+Sans+JP:wght@400;700;900&family=Noto+Serif+JP:wght@700;900&display=swap" rel="stylesheet">
 <style>
-/* ── PAGE LOADER ── */
-#loader {
-  position:fixed; inset:0; z-index:99999;
-  background:#0F0F0F;
-  display:flex; align-items:center; justify-content:center;
-  flex-direction:column; gap:0;
-  transition:opacity .8s ease, visibility .8s ease;
-  overflow:hidden;
-}
-#loader.hidden { opacity:0; visibility:hidden; pointer-events:none; }
-
-/* コート床ライン */
-.loader-court {
-  position:absolute; bottom:0; left:0; right:0; height:38%;
-  background:linear-gradient(180deg, #1a1200 0%, #0a0800 100%);
-  border-top:3px solid #F5C800;
-}
-.loader-court::before {
-  content:'';
-  position:absolute; top:0; left:50%; transform:translateX(-50%);
-  width:2px; height:100%; background:rgba(245,200,0,0.15);
-}
-
-/* ネット */
-.loader-net {
-  position:absolute;
-  bottom:38%; left:50%; transform:translateX(-50%);
-  width:3px; height:90px;
-  background:rgba(245,200,0,0.5);
-}
-.loader-net::before {
-  content:'';
-  position:absolute; top:0; left:50%; transform:translateX(-50%);
-  width:260px; height:1px;
-  background:rgba(245,200,0,0.3);
-  box-shadow:0 10px 0 rgba(245,200,0,0.15), 0 20px 0 rgba(245,200,0,0.1);
-}
-
 /* ── プレイヤー本体 ── */
 .loader-scene {
   position:absolute; bottom:38%; left:22%;
@@ -289,8 +251,8 @@
 .count-num { display:inline-block; }
 
 /* ── ナビ スライドイン ── */
-nav { transform:translateY(-100%); animation:navIn .6s 1.4s cubic-bezier(.22,1,.36,1) forwards; }
-@keyframes navIn { to { transform:translateY(0); } }
+
+
 
 /* ── section タイトル アンダーライン ── */
 .sec-h { position:relative; display:inline-block; }
@@ -322,6 +284,9 @@ html { scroll-behavior:smooth; }
 }
 
 body { font-family:var(--font-b); background:var(--cream); color:var(--ink); overflow-x:hidden; }
+
+section { position:relative; z-index:1; }
+
 .scard,.acard,.team-card,.r-item,.btn-y,.btn-bk,.form-submit,.team-join,.tab-btn,.res-tab { cursor:pointer; }
 
 /* noise */
@@ -338,6 +303,7 @@ nav {
   background:var(--black);
   border-bottom:4px solid var(--yellow);
   transition:border-bottom-width .2s;
+  transform:translateY(0);
 }
 .nav-logo-block {
   background:var(--yellow); display:flex; align-items:center;
@@ -369,6 +335,7 @@ nav {
   min-height:100vh; background:var(--black);
   display:flex; flex-direction:column;
   position:relative; overflow:hidden; padding-top:72px;
+  z-index:1;
 }
 
 
@@ -833,41 +800,6 @@ footer p { color:#2A2A2A; font-size:.68rem; letter-spacing:1px; width:100%; }
 <body>
 
 <!-- NAV -->
-
-<!-- PAGE LOADER: SPIKE ANIMATION -->
-<div id="loader">
-  <!-- コート床 -->
-  <div class="loader-court"></div>
-
-  <!-- ネット -->
-  <div class="loader-net"></div>
-
-  <!-- プレイヤー -->
-  <div class="loader-scene">
-    <div class="p-head"></div>
-    <div class="p-body"></div>
-    <div class="p-arm-r"></div>
-    <div class="p-arm-l"></div>
-    <div class="p-leg-l"></div>
-    <div class="p-leg-r"></div>
-  </div>
-
-  <!-- ボール -->
-  <div class="loader-ball"></div>
-
-  <!-- 衝撃波 -->
-  <div class="loader-impact"></div>
-
-  <!-- 軌跡 -->
-  <div class="loader-trail"></div>
-
-  <!-- テキスト -->
-  <div class="loader-text">
-    <span class="loader-title">NON<span class="y">BEI</span></span>
-    <span class="loader-ja-txt">呑兵衛</span>
-  </div>
-  <div class="loader-bar-wrap"><div class="loader-bar"></div></div>
-</div>
 
 <nav>
   <a href="#hero" class="nav-logo-block">
@@ -1403,38 +1335,38 @@ footer p { color:#2A2A2A; font-size:.68rem; letter-spacing:1px; width:100%; }
   <p>© 2024 呑兵衛バレーボールチーム &nbsp;|&nbsp; Instagram: @nonbei2024</p>
 </footer>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-/* ── LOADER ── */
-window.addEventListener('load', () => {
-  setTimeout(() => {
-    document.getElementById('loader').classList.add('hidden');
-    // ヒーロー要素をロード後にアニメ起動
-    document.querySelectorAll('.hero-anim').forEach((el,i) => {
-      setTimeout(() => el.style.animationPlayState = 'running', i * 80);
-    });
-  }, 3200);
-});
 
+<script>
 /* ── SCROLL REVEAL ── */
-const obs = new IntersectionObserver(entries => {
-  entries.forEach(e => {
-    if (e.isIntersecting) {
-      e.target.classList.add('visible');
-      // セクションタイトルのアンダーライン
-      const h = e.target.querySelector('.sec-h');
-      if (h) setTimeout(() => h.classList.add('line-active'), 200);
-    }
-  });
-}, { threshold: 0.12, rootMargin:'0px 0px -40px 0px' });
-document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+function initScrollReveal() {
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        // セクションタイトルのアンダーライン
+        const h = e.target.querySelector('.sec-h');
+        if (h) setTimeout(() => h.classList.add('line-active'), 200);
+      }
+    });
+  }, { threshold: 0.12, rootMargin:'0px 0px -40px 0px' });
+  
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
 
-// セクション自体のタイトルも監視
-document.querySelectorAll('.sec-h').forEach(el => {
-  const secObs = new IntersectionObserver(entries => {
-    entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('line-active'); });
-  }, { threshold: 0.5 });
-  secObs.observe(el);
-});
+  // セクション自体のタイトルも監視
+  document.querySelectorAll('.sec-h').forEach(el => {
+    const secObs = new IntersectionObserver(entries => {
+      entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('line-active'); });
+    }, { threshold: 0.5 });
+    secObs.observe(el);
+  });
+}
+
+// DOM読み込み完了後に実行
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initScrollReveal);
+} else {
+  initScrollReveal();
+}
 
 /* ── COUNT UP ── */
 function countUp(el, target, suffix, duration) {
@@ -1446,17 +1378,27 @@ function countUp(el, target, suffix, duration) {
     if (start >= target) clearInterval(timer);
   }, 16);
 }
-const countObs = new IntersectionObserver(entries => {
-  entries.forEach(e => {
-    if (e.isIntersecting && !e.target.dataset.counted) {
-      e.target.dataset.counted = '1';
-      const target = parseInt(e.target.dataset.target);
-      const suffix = e.target.dataset.suffix || '';
-      countUp(e.target, target, suffix, 1200);
-    }
-  });
-}, { threshold: 0.5 });
-document.querySelectorAll('[data-target]').forEach(el => countObs.observe(el));
+
+function initCountUp() {
+  const countObs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting && !e.target.dataset.counted) {
+        e.target.dataset.counted = '1';
+        const target = parseInt(e.target.dataset.target);
+        const suffix = e.target.dataset.suffix || '';
+        countUp(e.target, target, suffix, 1200);
+      }
+    });
+  }, { threshold: 0.5 });
+  document.querySelectorAll('[data-target]').forEach(el => countObs.observe(el));
+}
+
+// DOM読み込み完了後に実行
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initCountUp);
+} else {
+  initCountUp();
+}
 
 /* ── NAV SHRINK ── */
 window.addEventListener('scroll', () => {
